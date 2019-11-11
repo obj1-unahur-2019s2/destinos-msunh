@@ -1,0 +1,143 @@
+import viajes.*
+import socios.*
+import libros.*
+
+test "test1" {
+	var excursionACiudad = new ExcursionACiudad()
+	excursionACiudad
+//un/a  ExcursionACiudad[dias=0, sirveParaBroncearse=false, idioma="ninguno", atracciones=0, implicaEsfuerzo=false]
+	excursionACiudad.atracciones(4)
+	assert.equals(2, excursionACiudad.dias())
+//2
+	assert.notThat(excursionACiudad.implicaEsfuerzo())
+//false
+	assert.notThat(excursionACiudad.sirveParaBroncearse())
+//false
+	var excursionACiudadTropical = new ExcursionACiudadTropical()
+	excursionACiudadTropical.atracciones(4)
+	assert.equals(3,excursionACiudadTropical.dias())
+//3
+	assert.notThat(excursionACiudadTropical.implicaEsfuerzo())
+//false
+	assert.that(excursionACiudadTropical.sirveParaBroncearse())
+//true
+	excursionACiudad.atracciones(8)
+	assert.equals(4, excursionACiudad.dias())
+//4
+	assert.that(excursionACiudad.implicaEsfuerzo())
+//true
+	assert.notThat(excursionACiudad.sirveParaBroncearse())
+//false
+	excursionACiudadTropical.atracciones(8)
+	assert.equals(5, excursionACiudadTropical.dias())
+//5
+	assert.that(excursionACiudadTropical.implicaEsfuerzo())
+//true
+	assert.that(excursionACiudadTropical.sirveParaBroncearse())
+//true
+	excursionACiudadTropical.atracciones(10)
+	assert.equals(6, excursionACiudadTropical.dias())
+//6
+	assert.notThat(excursionACiudadTropical.implicaEsfuerzo())
+//false
+	assert.that(excursionACiudadTropical.sirveParaBroncearse())
+//true
+}
+
+////trekking
+
+test "trekking" {
+	var trekking = new SalidaDeTrekking()
+	trekking.kilometros(100)
+	trekking.diasDeSol(130)
+	assert.equals(2, trekking.dias())
+//2
+	assert.that(trekking.implicaEsfuerzo())
+//true
+	assert.notThat(trekking.sirveParaBroncearse())
+//false
+	trekking.kilometros(50)
+	trekking.diasDeSol(240)
+	assert.equals(1, trekking.dias())
+//1
+	assert.notThat(trekking.implicaEsfuerzo())
+//false
+	assert.that(trekking.sirveParaBroncearse())
+//true
+	trekking.kilometros(250)
+	trekking.diasDeSol(130)
+	assert.equals(5, trekking.dias())
+//5
+	assert.that(trekking.implicaEsfuerzo())
+//true
+	assert.that(trekking.sirveParaBroncearse())
+//true
+}
+
+
+test "socios ana y roque" {
+//socios ana y roque
+	var roque = new Socio()
+	var ana = new Socio()
+	var viajeDePLaya1 = new ViajeDePlaya(largo = 1000)
+	var viajeDePLaya2 = new ViajeDePlaya(largo = 2000)
+	var gimnasia = new ClasesDeGimnasia()
+	roque.maximoDeActividades(2)
+	assert.that(roque.esAdoradorDelSol())
+//true
+	roque.registrarActividad(viajeDePLaya1)
+	roque.registrarActividad(viajeDePLaya2)
+	assert.equals([ viajeDePLaya2 ], roque.actividadesEsforzadas())
+//(viajeDePLaya2)[un/a  ViajeDePlaya[dias=0, sirveParaBroncearse=false, idioma=[], largo=2000, implicaEsfuerzo=false]]
+	assert.throwsException({ roque.registrarActividad(gimnasia)})
+//(dar error)wollok.lang.DomainException: Capacidad completa de actividades
+//   at socios.Socio.registrarActividad(cual) (/home/z/workspace-wollok/destinos-msunh/src/socios.wlk:25)
+//ana
+//un/a  Socio[actividades=[], maximoDeActividades=0]
+	ana.maximoDeActividades(3)
+	ana.registrarActividad(viajeDePLaya1)
+	ana.registrarActividad(viajeDePLaya2)
+	assert.that(ana.esAdoradorDelSol())
+//true
+	ana.registrarActividad(gimnasia)
+	assert.notThat(ana.esAdoradorDelSol())
+//false
+	assert.equals([ viajeDePLaya2, gimnasia ], ana.actividadesEsforzadas())
+//(viajeDePLaya2, gimnasia)[un/a  ViajeDePlaya[dias=0, sirveParaBroncearse=false, idioma=[], largo=2000, implicaEsfuerzo=false], un/a  ClasesDeGimnasia[dias=0, sirveParaBroncearse=false, idioma=[], implicaEsfuerzo=false]]
+}
+
+test "socio relajado le atrae.." {
+//socio relajado le atrae
+	var roque = new SocioRelajado()
+	var ciudad = new Viaje()
+	ciudad.agregarIdioma("portugues")
+	ciudad.agregarIdioma("frances")
+//roque
+//un/a  SocioRelajadoaximoDeActividades=0, actividades=[], edad=0, idiomasQueHabla=[]]
+	roque.idiomasQueHabla("frances")
+	assert.equals([ "portugues", "frances" ], roque.idiomasDeLaActividad(ciudad))
+	assert.equals("frances", roque.idiomasQueHablo())
+//"frances"
+	assert.that(roque.leAtrae(ciudad))
+//true
+//roque.idiomasQueHabla()
+//"frances"
+	roque.idiomasQueHabla("espaniol")
+	assert.notThat(roque.leAtrae(ciudad))
+//false
+	roque.idiomasQueHabla("portugues")
+	assert.that(roque.leAtrae(ciudad))
+//true
+	ciudad.agregarIdioma("espaniol")
+//ciudad
+//un/a  Viaje[dias=0, sirveParaBroncearse=false, idioma=["portugues", "frances", "espaniol"], implicaEsfuerzo=false]
+// 
+//roque.idiomasQueHabla()
+//"portugues"
+	roque.idiomasQueHabla("ruso")
+	assert.notThat(roque.leAtrae(ciudad))
+//false
+	roque.idiomasQueHabla("espaniol")
+	assert.that(roque.leAtrae(ciudad))
+//true
+}
